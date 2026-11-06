@@ -95,8 +95,10 @@ async function renderShop() {
     </div>
     <div class="grid" id="grid"><div class="empty">加载中…</div></div>`;
   try {
-    const q = state.keyword ? `&q=${encodeURIComponent(state.keyword)}` : "";
-    const data = await api(`/api/products?category_id=${state.categoryId || ""}${q}`);
+    const cat = state.categoryId ? `category_id=${state.categoryId}&` : "";
+    const q = state.keyword ? `q=${encodeURIComponent(state.keyword)}` : "";
+    const data = await api(`/api/products?${cat}${q}`);
+
     const grid = document.getElementById("grid");
     if (!data.items.length) { grid.innerHTML = `<div class="empty">没有找到商品</div>`; return; }
     grid.innerHTML = data.items.map(p => `
@@ -125,8 +127,7 @@ async function buyNow(productId) {
   try {
     await api("/api/cart", "POST", { product_id: productId, quantity: 1 });
     await api("/api/orders", "POST");
-    await api("/api/payment/mock", "POST", { order_id: (await api("/api/orders/my")).items[0].id });
-    toast("购买成功（模拟支付）"); refreshCartCount(); switchView("orders");
+    toast("下单成功，请尽快支付"); refreshCartCount(); switchView("orders");
   } catch (e) { toast(e.message); }
 }
 
@@ -176,8 +177,7 @@ async function removeCart(productId) {
 async function checkout() {
   try {
     const order = await api("/api/orders", "POST");
-    await api("/api/payment/mock", "POST", { order_id: order.id });
-    toast("下单并支付成功！订单号 " + order.order_no);
+    toast("下单成功！订单号 " + order.order_no+"，请尽快支付");
     refreshCartCount(); switchView("orders");
   } catch (e) { toast(e.message); }
 }

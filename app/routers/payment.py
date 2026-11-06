@@ -23,3 +23,4 @@ def mock_pay(body: PaymentRequest, user: dict = Depends(get_current_user)):
         conn.execute("UPDATE orders SET status='paid', paid_at=datetime('now','localtime') WHERE id=?", (row["id"],))
         order_no = row["order_no"]
     return {"ok": True, "message": "支付成功", "order_no": order_no, "status": "paid"}
+

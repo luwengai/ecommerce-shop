@@ -1,6 +1,7 @@
 """电商商城 FastAPI 入口"""
 import os
-
+import asyncio
+from .tasks import auto_cancel_loop
 from fastapi import FastAPI
 from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
@@ -17,6 +18,11 @@ app = FastAPI(
     description="用 Codex / Claude Code 开发的电商应用（商品/购物车/订单/支付/管理后台）",
     version="1.0.0",
 )
+
+@app.on_event("startup")
+async def start_background_tasks():
+    asyncio.create_task(auto_cancel_loop())
+
 
 # 初始化数据库 + 演示数据
 db.init_db()
